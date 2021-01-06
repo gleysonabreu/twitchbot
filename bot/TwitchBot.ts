@@ -2,7 +2,8 @@ import tmi, { Options, Client, ChatUserstate } from 'tmi.js';
 
 interface ICommand {
   command: string;
-  say: string;
+  say?: string;
+  type: number;
 }
 
 class TwitchBot {
@@ -33,7 +34,7 @@ class TwitchBot {
       },
       identity: {
         username: this.userName,
-        password: this.oAuth
+        password: `oauth:${this.oAuth}`
       },
       channels: [...this.channelBoot],
     } as Options;
@@ -54,10 +55,17 @@ class TwitchBot {
     this.commands.push(command);
   };
 
-  command(channel: string, user:ChatUserstate, message: string,) {
+  command(channel: string, user:ChatUserstate, message: string) {
     this.commands.forEach((command) => {
       if(message.toLowerCase() === command.command){
-        this.client.say(channel, `@${user.username}, ${command.say}`);
+        switch(command.type){
+          case 0:
+            this.client.say(channel, `@${user.username}, anything else.`);
+            break;
+          case 1:
+            this.client.clear(channel);
+            break;
+        }
       }
     });
   }
